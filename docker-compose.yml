@@ -1,4 +1,6 @@
 services:
+
+  # ── Ollama (LLM sunucusu) ────────────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
     container_name: ibbbot-ollama
@@ -7,21 +9,26 @@ services:
     ports:
       - "11434:11434"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
-  backend:
-    build: ./backend
-    container_name: ibbbot-backend
+  # ── Model indirme (ilk çalıştırmada modelleri çeker, sonra kapanır) ──────────
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ibbbot-ollama-init
     environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - OLLAMA_MODEL=gemma3:4b
-      - RAG_SERVICE_URL=http://rag-service:8001
-    ports:
-      - "8080:8080"
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: ["/bin/sh", "-c", "ollama pull gemma3:4b && ollama pull embeddinggemma"]
     depends_on:
-      - ollama
-      - rag-service
-    restart: unless-stopped
+      ollama:
+        condition: service_healthy
+    restart: no
 
+  # ── Python RAG servisi ───────────────────────────────────────────────────────
   rag-service:
     build: ./python-service
     container_name: ibbbot-rag
@@ -33,16 +40,48 @@ services:
     ports:
       - "8001:8001"
     depends_on:
-      - ollama
+      ollama-init:
+        condition: service_completed_successfully
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8001/health > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
+  # ── Spring Boot backend ──────────────────────────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: ibbbot-backend
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=gemma3:4b
+      - RAG_SERVICE_URL=http://rag-service:8001
+    ports:
+      - "8080:8080"
+    depends_on:
+      ollama-init:
+        condition: service_completed_successfully
+      rag-service:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health/ollama > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  # ── React frontend (Nginx) ───────────────────────────────────────────────────
   frontend:
     build: ./frontend
     container_name: ibbbot-frontend
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

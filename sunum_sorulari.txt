@@ -1,0 +1,41 @@
+========================================
+  İBBot - SUNUM DEMO SORULARI
+========================================
+
+1. GENEL SORU (RAG - İBB Veri Seti)
+   "Kadıköy'de spor tesisi var mı?"
+
+2. DEPREM (RAG - İBB Veri Seti)
+   "İstanbul'da deprem riski en yüksek ilçeler hangileri?"
+
+3. METRO - API
+   "Metro çalışıyor mu?"
+
+4. OTOBÜS KONUMU - İETT API
+   "500T otobüsü nerede şu an?"
+
+5. KULLANICI KONUMU
+   "Şu an neredeyim?"
+
+6. ROTA - Harita
+   "Taksim'e nasıl giderim?"
+
+7. FATURA ÖDEME - Çok Adımlı Akış (Flow)
+   "Elektrik faturamı ödemek istiyorum"
+   >> Abone no sorduğunda herhangi bir sayı gir (ör: 123456)
+   >> Fatura tutarı gelince "evet" yaz → ödeme tamamlanır
+
+8. ŞİKAYET - Çok Adımlı Akış (Flow)
+   "İBB'ye şikayet yapmak istiyorum"
+   >> Şikayet açıkla (ör: sokak lambası bozuk)
+   >> Kişisel bilgi gir:
+      TC: 34567890123, Ad: Ahmet, Soyad: Yilmaz,
+      Email: ahmet@test.com, Tel: 5551234567, Dogum: 01/01/1990
+   >> Fotoğraf sorusunda "hayır" yaz
+   >> Özet gelince "evet" yaz → başvuru iletilir
+
+========================================
+  SIRA: Basit'ten karmaşığa doğru git.
+  Her sorudan sonra sistemin verdiği
+  cevabı ve kullandığı teknolojiyi açıkla.
+========================================
