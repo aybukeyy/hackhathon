@@ -1,0 +1,35 @@
+# Dependencies
+frontend/node_modules/
+frontend/dist/
+
+# Build output
+backend/target/
+
+# RAG index (too large for GitHub — build locally with build_index.py)
+python-service/rag_index.pkl
+
+# Logs
+*.log
+/tmp/
+
+# Claude Code
+.claude/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Jupyter
+*.ipynb_checkpoints/
