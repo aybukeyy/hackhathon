@@ -59,12 +59,18 @@ export default function InputBar({ onSend, onFileUpload, disabled }) {
       return
     }
 
+    const imagePreview = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+
+    // Fotoğrafı upload bitmeden hemen sohbette göster
+    if (typeof onFileUpload === 'function') {
+      onFileUpload({ fileName: file.name, imagePreview, previewOnly: true })
+    }
+
     setUploading(true)
     setUploadPct(0)
 
     try {
       const result = await uploadFile(file, (pct) => setUploadPct(pct))
-      // Başarılı yükleme — App'e bildir
       if (typeof onFileUpload === 'function') {
         onFileUpload({ filePath: result.filePath, fileName: file.name })
       }

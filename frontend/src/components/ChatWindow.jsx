@@ -11,7 +11,7 @@ export default function ChatWindow({ messages, loading, speak }) {
   return (
     <div className="chat-window">
       {messages.map((msg) => (
-        <MessageBubble key={msg.id} role={msg.role} text={msg.text} speak={speak} routeData={msg.routeData} />
+        <MessageBubble key={msg.id} role={msg.role} text={msg.text} speak={speak} routeData={msg.routeData} image={msg.image} />
       ))}
 
       {loading && (

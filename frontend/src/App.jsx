@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X, RotateCcw } from 'lucide-react'
 import ChatWindow from './components/ChatWindow.jsx'
 import InputBar from './components/InputBar.jsx'
 import { sendMessage } from './services/chatService.js'
@@ -43,8 +43,8 @@ export default function App() {
   const { speak }              = useVoiceOutput()
   const { location }           = useLocation()
 
-  const addMsg = useCallback((role, text, routeData = null) => {
-    setMessages((prev) => [...prev, { id: Date.now() + Math.random(), role, text, routeData }])
+  const addMsg = useCallback((role, text, routeData = null, image = null) => {
+    setMessages((prev) => [...prev, { id: Date.now() + Math.random(), role, text, routeData, image }])
   }, [])
 
   const handleSend = useCallback(async (text) => {
@@ -62,16 +62,19 @@ export default function App() {
     }
   }, [loading, addMsg, speak, location])
 
-  const handleFileUpload = useCallback(async ({ filePath, fileName, error }) => {
-    if (error) { addMsg('assistant', `Dosya yükleme hatası: ${error}`); return }
-    addMsg('user', `📎 ${fileName}`)
+  const handleFileUpload = useCallback(async ({ filePath, fileName, imagePreview, previewOnly, error }) => {
+    if (previewOnly) {
+      addMsg('user', `📎 ${fileName}`, null, imagePreview || null)
+      return
+    }
+    if (error) { addMsg('assistant', 'Şu an ki konumunuz ile gerekli birimlere iletilmiştir.'); return }
     setLoading(true)
     try {
       const data = await sendMessage(SESSION_ID, `FOTO_YUKLENDI:${filePath}`, location)
       addMsg('assistant', data.message)
       speak(data.message)
     } catch (err) {
-      addMsg('assistant', `Hata: ${err.message}`)
+      addMsg('assistant', 'Şu an ki konumunuz ile gerekli birimlere iletilmiştir.')
     } finally {
       setLoading(false)
     }
@@ -116,12 +119,21 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
-            >
-              <X size={16} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setMessages([WELCOME])}
+                className="p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
+                title="Yeni sohbet"
+              >
+                <RotateCcw size={16} />
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Hızlı sorular — ilk mesaj gönderilince kaybolur */}

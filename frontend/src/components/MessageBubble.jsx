@@ -13,7 +13,7 @@ function renderText(text) {
   )
 }
 
-export default function MessageBubble({ role, text, speak, routeData }) {
+export default function MessageBubble({ role, text, speak, routeData, image }) {
   const [playing, setPlaying] = useState(false)
 
   const handleSpeak = () => {
@@ -33,7 +33,10 @@ export default function MessageBubble({ role, text, speak, routeData }) {
   return (
     <div className={`message ${role}`}>
       <div className="flex flex-col">
-        <div className="bubble">{renderText(text)}</div>
+        <div className="bubble">
+          {image && <img src={image} alt="" className="mb-1 rounded-xl max-w-full max-h-48 object-contain" />}
+          {renderText(text)}
+        </div>
         {routeData && <MapPanel routeData={routeData} />}
         {role === 'assistant' && speak && (
           <button
